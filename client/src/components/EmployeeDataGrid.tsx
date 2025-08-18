@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import useSWR from 'swr';
 import { DataGrid } from '@mui/x-data-grid';
 import type { GridColDef } from '@mui/x-data-grid';
 import { Box, Typography, Alert, CircularProgress } from '@mui/material';
@@ -20,10 +21,10 @@ interface ApiResponse {
   pageSize: number;
 }
 
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
 const EmployeeDataGrid: React.FC = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, error, isLoading } = useSWR<ApiResponse>('http://localhost:3001/api/employees', fetcher);
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
@@ -35,32 +36,7 @@ const EmployeeDataGrid: React.FC = () => {
     { field: 'startDate', headerName: 'Start Date', width: 130 },
   ];
 
-  const fetchEmployees = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('http://localhost:3001/api/employees');
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const result: ApiResponse = await response.json();
-      setEmployees(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error fetching employees:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
-
-  if (loading && employees.length === 0) {
+  if (isLoading) {
     return (
       <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
         <CircularProgress />
@@ -71,7 +47,7 @@ const EmployeeDataGrid: React.FC = () => {
   if (error) {
     return (
       <Alert severity="error" sx={{ mb: 2 }}>
-        {error}
+        {error.message || 'An error occurred'}
       </Alert>
     );
   }
@@ -86,7 +62,7 @@ const EmployeeDataGrid: React.FC = () => {
       </Typography>
       
       <DataGrid
-        rows={employees}
+        rows={data?.data || []}
         columns={columns}
         pagination
         pageSizeOptions={[5, 10, 25, 100]}
