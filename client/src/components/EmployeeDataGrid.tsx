@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { DataGrid } from '@mui/x-data-grid';
-import type { GridColDef } from '@mui/x-data-grid';
-import { Box, Typography, Alert, CircularProgress } from '@mui/material';
+import React, { useMemo } from 'react';
+import { DataGridPro, type GridColDef, type GridDataSource, type GridGetRowsParams, type GridGetRowsResponse } from '@mui/x-data-grid-pro';
+import { Box, Typography } from '@mui/material';
 
 interface Employee {
   id: number;
@@ -21,10 +20,6 @@ interface ApiResponse {
 }
 
 const EmployeeDataGrid: React.FC = () => {
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
     { field: 'name', headerName: 'Name', width: 200 },
@@ -35,46 +30,29 @@ const EmployeeDataGrid: React.FC = () => {
     { field: 'startDate', headerName: 'Start Date', width: 130 },
   ];
 
-  const fetchEmployees = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await fetch('http://localhost:3001/api/employees');
+  const dataSource: GridDataSource = useMemo(() => ({
+    getRows: async (params: GridGetRowsParams): Promise<GridGetRowsResponse> => {
+      const urlParams = new URLSearchParams({
+        page: params.paginationModel?.page?.toString() || '0',
+        pageSize: params.paginationModel?.pageSize?.toString() || '40',
+        sortModel: JSON.stringify(params.sortModel || []),
+        filterModel: JSON.stringify(params.filterModel || {}),
+      });
+
+      const response = await fetch(`http://localhost:3001/api/employees?${urlParams.toString()}`);
       
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       
       const result: ApiResponse = await response.json();
-      setEmployees(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
-      console.error('Error fetching employees:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchEmployees();
-  }, []);
-
-  if (loading && employees.length === 0) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <Alert severity="error" sx={{ mb: 2 }}>
-        {error}
-      </Alert>
-    );
-  }
+      
+      return {
+        rows: result.data,
+        rowCount: result.total,
+      };
+    },
+  }), []);
 
   return (
     <Box sx={{ height: 600, width: '100%' }}>
@@ -85,9 +63,9 @@ const EmployeeDataGrid: React.FC = () => {
         Server-side data with pagination, sorting, and filtering
       </Typography>
       
-      <DataGrid
-        rows={employees}
+      <DataGridPro
         columns={columns}
+        dataSource={dataSource}
         pagination
         pageSizeOptions={[5, 10, 25, 100]}
         disableRowSelectionOnClick
