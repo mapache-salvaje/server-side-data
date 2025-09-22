@@ -1,4 +1,4 @@
-# Server-Side Data Application
+# MUI X Data Grid Pro with Data Source layer
 
 A full-stack application demonstrating server-side data handling with the MUI X Data Grid Pro, featuring pagination, sorting, and filtering capabilities.
 
