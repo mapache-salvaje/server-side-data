@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { DataGrid, type GridColDef, type GridDataSource, type GridGetRowsParams, type GridGetRowsResponse } from '@mui/x-data-grid';
+import { DataGridPro, type GridColDef, type GridDataSource, type GridGetRowsParams, type GridGetRowsResponse } from '@mui/x-data-grid-pro';
 import { Box, Typography } from '@mui/material';
 
 interface Employee {
@@ -63,7 +63,7 @@ const EmployeeDataGrid: React.FC = () => {
         Server-side data with pagination, sorting, and filtering
       </Typography>
       
-      <DataGrid
+      <DataGridPro
         columns={columns}
         dataSource={dataSource}
         pagination

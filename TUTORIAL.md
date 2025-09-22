@@ -1,6 +1,6 @@
 # Building a server-side data grid with MUI X Data Grid: A step-by-step tutorial
 
-This tutorial walks you through building a data grid that fetches data from a server with pagination, sorting, and filtering. Focus on the `EmployeeDataGrid.tsx` component and break it down into digestible pieces.
+This tutorial walks you through building a Data Grid that fetches data from a server with pagination, sorting, and filtering.
 
 ## Prerequisites
 
@@ -8,9 +8,7 @@ This tutorial walks you through building a data grid that fetches data from a se
 - Understanding of TypeScript interfaces
 - Familiarity with async/await and fetch API
 
-## Project setup
-
-### 1. Create the project structure
+## 1. Create the project structure
 
 Create a new directory and set up the folder structure:
 
@@ -20,20 +18,20 @@ cd server-side-data
 mkdir client server
 ```
 
-### 2. Initialize the server
+## 2. Initialize the server
 
 Navigate to the server directory and initialize:
 
 ```bash
 cd server
-npm init -y
+pnpm init
 ```
 
 Install server dependencies:
 
 ```bash
-npm install express cors
-npm install --save-dev typescript @types/express @types/node tsx
+pnpm install express cors
+pnpm install --save-dev typescript @types/express @types/node tsx
 ```
 
 Create a `tsconfig.json` file:
@@ -55,23 +53,23 @@ Create a `tsconfig.json` file:
 }
 ```
 
-### 3. Initialize the client
+## 3. Initialize the client
 
-Navigate to the client directory and create a React app:
+Navigate to the client directory and create a React app with Vite in TypeScript:
 
 ```bash
 cd ../client
-npm create vite@latest . -- --template react-ts
-npm install
+pnpm create vite@latest . -- --template react-ts
+pnpm install
 ```
 
 Install MUI dependencies:
 
 ```bash
-npm install @mui/material @emotion/react @emotion/styled @mui/icons-material @mui/x-data-grid @fontsource/roboto
+pnpm install @mui/material @emotion/react @emotion/styled @mui/icons-material @mui/x-data-grid-pro @fontsource/roboto
 ```
 
-### 4. Set up the server code
+## 4. Set up the server code
 
 Create `server/src/index.ts`:
 
@@ -162,7 +160,16 @@ app.listen(PORT, () => {
 });
 ```
 
-### 5. Set up the client code
+**What's happening here:**
+- Express server is set up with CORS enabled for cross-origin requests
+- Dummy employee data simulates a database
+- `/api/employees` endpoint is created with pagination, sorting, and filtering
+- Filters can be applied based on column field, operator, and value
+- Data can be sorted by specified fields in ascending or descending order
+- Results are paginated using `page` and `pageSize` parameters
+- Data is returned in the format expected by the Data Grid
+
+## 5. Set up the client code
 
 Update `client/src/App.tsx`:
 
@@ -191,7 +198,7 @@ function App() {
 export default App;
 ```
 
-### 6. Add scripts to package.json files
+## 6. Add scripts to package.json files
 
 In `server/package.json`, add:
 
@@ -205,27 +212,27 @@ In `server/package.json`, add:
 }
 ```
 
-### 7. Run the application
+## 7. Run the application
 
 Start the server:
 
 ```bash
 cd server
-npm run dev
+pnpm run dev
 ```
 
 In a new terminal, start the client:
 
 ```bash
 cd client
-npm run dev
+pnpm run dev
 ```
 
 The server runs on `http://localhost:3001` and the client on `http://localhost:5173`.
 
-## 1. Understanding the data structure
+## 8. Understanding the data structure
 
-First, define what your data looks like. Create interfaces that match your server response:
+Define what your data looks like by creating interfaces that match your server response:
 
 ```typescript
 interface Employee {
@@ -249,11 +256,11 @@ interface ApiResponse {
 **What's happening here:**
 - `Employee` defines the structure of each row in your grid
 - `ApiResponse` defines what the server sends back, including metadata like total count and pagination info
-- The `total` field is crucial for server-side pagination - it tells the grid how many total rows exist
+- The `total` field tells the grid how many total rows exist
 
-## 2. Setting up the grid columns
+## 9. Setting up the grid columns
 
-Next, define how each column should appear and behave:
+Define how each column should appear and behave:
 
 ```typescript
 const columns: GridColDef[] = [
@@ -271,11 +278,11 @@ const columns: GridColDef[] = [
 - `field` maps to the property names in your `Employee` interface
 - `headerName` is what users see in the column header
 - `width` sets the initial column width in pixels
-- Each column will automatically support sorting and filtering
+- Each column automatically supports sorting and filtering
 
-## 3. Understanding GridDataSource
+## 10. Understanding GridDataSource
 
-This is the heart of server-side data handling. The `GridDataSource` tells the grid how to fetch data:
+The `GridDataSource` tells the grid how to fetch data:
 
 ```typescript
 const dataSource: GridDataSource = useMemo(() => ({
@@ -286,12 +293,11 @@ const dataSource: GridDataSource = useMemo(() => ({
 ```
 
 **What's happening here:**
-- `GridDataSource` is a MUI X Data Grid concept that replaces the old `rows` prop
 - `getRows` is an async function that the grid calls whenever it needs data
 - `params` contains all the information about what data the grid needs
 - Wrap it in `useMemo` to prevent recreating the function on every render
 
-## 4. Building the URL parameters
+## 11. Building the URL parameters
 
 Inside `getRows`, construct the API call with the grid's current state:
 
@@ -309,11 +315,10 @@ const urlParams = new URLSearchParams({
 - `params.paginationModel.pageSize` tells you how many rows per page
 - `params.sortModel` contains which columns are sorted and in what direction
 - `params.filterModel` contains any active filters
-- Convert these to query parameters that your server can understand
 
-## 5. Making the API call
+## 12. Making the API call
 
-Now fetch the data from your server:
+Fetch the data from your server:
 
 ```typescript
 const response = await fetch(`http://localhost:3001/api/employees?${urlParams.toString()}`);
@@ -325,15 +330,9 @@ if (!response.ok) {
 const result: ApiResponse = await response.json();
 ```
 
-**What's happening here:**
-- Use the native `fetch` API to call your server
-- The URL includes all the parameters you built in the previous step
-- Check if the response is successful and throw an error if not
-- Parse the JSON response into your `ApiResponse` interface
+## 13. Returning the data to the grid
 
-## 6. Returning the data to the grid
-
-Finally, return the data in the format the grid expects:
+Return the data in the format the grid expects:
 
 ```typescript
 return {
@@ -342,14 +341,9 @@ return {
 };
 ```
 
-**What's happening here:**
-- `rows` contains the actual data for the current page
-- `rowCount` tells the grid the total number of rows available (for pagination)
-- The grid will automatically update its pagination controls based on `rowCount`
+## 14. Putting it all together
 
-## 7. Putting it all together
-
-Now see the complete `getRows` function:
+Combining steps 10 through 13, the complete `getRows` function should look like this:
 
 ```typescript
 const dataSource: GridDataSource = useMemo(() => ({
@@ -377,12 +371,12 @@ const dataSource: GridDataSource = useMemo(() => ({
 }), []);
 ```
 
-## 8. Rendering the DataGrid
+## 15. Rendering the Data Grid Pro
 
 Finally, render the grid with your configuration:
 
 ```typescript
-<DataGrid
+<DataGridPro
   columns={columns}
   dataSource={dataSource}
   pagination
@@ -398,9 +392,9 @@ Finally, render the grid with your configuration:
 - `pageSizeOptions` lets users choose how many rows to see per page
 - `disableRowSelectionOnClick` prevents row selection when clicking cells
 
-## 9. Adding the UI wrapper
+## 16. Adding the UI wrapper
 
-Wrap everything in a nice container:
+Wrap everything in a container:
 
 ```typescript
 return (
@@ -412,7 +406,7 @@ return (
       Server-side data with pagination, sorting, and filtering
     </Typography>
     
-    <DataGrid
+    <DataGridPro
       columns={columns}
       dataSource={dataSource}
       pagination
@@ -433,27 +427,13 @@ return (
 6. **Response**: Server returns only the data needed for the current page
 7. **Grid Update**: Grid displays the new data and updates pagination controls
 
-## Key benefits of this approach
-
-- **Performance**: Only loads the data you need, not the entire dataset
-- **Scalability**: Works with millions of rows without performance issues
-- **User Experience**: Fast pagination, sorting, and filtering
-- **Network Efficiency**: Minimal data transfer between client and server
-
-## Common gotchas to watch for
-
-1. **Error Handling**: Always check `response.ok` and handle errors gracefully
-2. **Default Values**: Provide sensible defaults for pagination (page 0, reasonable page size)
-3. **Type Safety**: Use TypeScript interfaces to catch errors at compile time
-4. **Memoization**: Use `useMemo` to prevent recreating the data source on every render
-
 ## Complete component code
 
 Here is the complete `EmployeeDataGrid.tsx` component for reference:
 
 ```typescript
 import React, { useMemo } from 'react';
-import { DataGrid, type GridColDef, type GridDataSource, type GridGetRowsParams, type GridGetRowsResponse } from '@mui/x-data-grid';
+import { DataGridPro, type GridColDef, type GridDataSource, type GridGetRowsParams, type GridGetRowsResponse } from '@mui/x-data-grid-pro';
 import { Box, Typography } from '@mui/material';
 
 interface Employee {
@@ -517,7 +497,7 @@ const EmployeeDataGrid: React.FC = () => {
         Server-side data with pagination, sorting, and filtering
       </Typography>
       
-      <DataGrid
+      <DataGridPro
         columns={columns}
         dataSource={dataSource}
         pagination
@@ -530,5 +510,3 @@ const EmployeeDataGrid: React.FC = () => {
 
 export default EmployeeDataGrid;
 ```
-
-This approach gives you a production-ready data grid that handles large datasets efficiently while providing a smooth user experience. The key is understanding that the grid is just a UI component - all the heavy lifting happens on the server.
