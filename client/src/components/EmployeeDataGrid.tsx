@@ -1,5 +1,5 @@
-import React, { useMemo } from 'react';
-import { DataGridPro, type GridColDef, type GridDataSource, type GridGetRowsParams, type GridGetRowsResponse } from '@mui/x-data-grid-pro';
+import { useMemo } from 'react';
+import { DataGrid, type GridColDef, type GridDataSource, type GridGetRowsParams, type GridGetRowsResponse } from '@mui/x-data-grid';
 import { Box, Typography } from '@mui/material';
 
 interface Employee {
@@ -19,7 +19,7 @@ interface ApiResponse {
   pageSize: number;
 }
 
-const EmployeeDataGrid: React.FC = () => {
+const EmployeeDataGrid = () => {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 80 },
     { field: 'name', headerName: 'Name', width: 200 },
@@ -63,7 +63,7 @@ const EmployeeDataGrid: React.FC = () => {
         Server-side data with pagination, sorting, and filtering
       </Typography>
       
-      <DataGridPro
+      <DataGrid
         columns={columns}
         dataSource={dataSource}
         pagination
