@@ -62,21 +62,62 @@ app.get('/api/employees', (req, res) => {
   if (filterModel && typeof filterModel === 'string') {
     try {
       const filters = JSON.parse(filterModel as string);
+      
       if (filters.items && filters.items.length > 0) {
         filteredData = filteredData.filter(item => {
-          return filters.items.every((filter: any) => {
-            const value = item[filter.columnField as keyof typeof item];
-            if (filter.operatorValue === 'contains') {
-              return String(value).toLowerCase().includes(filter.value.toLowerCase());
-            }
-            if (filter.operatorValue === 'equals') {
-              return String(value) === filter.value;
-            }
-            if (filter.operatorValue === 'startsWith') {
-              return String(value).toLowerCase().startsWith(filter.value.toLowerCase());
-            }
-            return true;
-          });
+          const logicOperator = filters.logicOperator || 'Or';
+          
+          if (logicOperator === 'And') {
+            // All filter items must match
+            return filters.items.every((filterItem: any) => {
+              const value = item[filterItem.field as keyof typeof item];
+              
+              if (filterItem.operator === 'contains') {
+                return String(value).toLowerCase().includes(filterItem.value.toLowerCase());
+              }
+              if (filterItem.operator === 'equals') {
+                return String(value) === filterItem.value;
+              }
+              if (filterItem.operator === 'startsWith') {
+                return String(value).toLowerCase().startsWith(filterItem.value.toLowerCase());
+              }
+              if (filterItem.operator === 'endsWith') {
+                return String(value).toLowerCase().endsWith(filterItem.value.toLowerCase());
+              }
+              if (filterItem.operator === 'isEmpty') {
+                return !value || String(value).trim() === '';
+              }
+              if (filterItem.operator === 'isNotEmpty') {
+                return value && String(value).trim() !== '';
+              }
+              return true;
+            });
+          } else {
+            // At least one filter item must match (OR logic)
+            return filters.items.some((filterItem: any) => {
+              const value = item[filterItem.field as keyof typeof item];
+              
+              if (filterItem.operator === 'contains') {
+                return String(value).toLowerCase().includes(filterItem.value.toLowerCase());
+              }
+              if (filterItem.operator === 'equals') {
+                return String(value) === filterItem.value;
+              }
+              if (filterItem.operator === 'startsWith') {
+                return String(value).toLowerCase().startsWith(filterItem.value.toLowerCase());
+              }
+              if (filterItem.operator === 'endsWith') {
+                return String(value).toLowerCase().endsWith(filterItem.value.toLowerCase());
+              }
+              if (filterItem.operator === 'isEmpty') {
+                return !value || String(value).trim() === '';
+              }
+              if (filterItem.operator === 'isNotEmpty') {
+                return value && String(value).trim() !== '';
+              }
+              return true;
+            });
+          }
         });
       }
     } catch (e) {
