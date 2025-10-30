@@ -120,7 +120,7 @@ app.get('/api/employees', (req, res) => {
           }
         });
       }
-    } catch (e) {
+    } catch (error) {
       // Invalid filter, return all data
     }
   }
@@ -141,7 +141,7 @@ app.get('/api/employees', (req, res) => {
           return 0;
         });
       }
-    } catch (e) {
+    } catch (error) {
       // Invalid sort, keep original order
     }
   }

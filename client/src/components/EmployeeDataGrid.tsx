@@ -19,22 +19,21 @@ interface ApiResponse {
   pageSize: number;
 }
 
-const EmployeeDataGrid = () => {
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 80 },
-    { field: 'name', headerName: 'Name', width: 200 },
-    { field: 'email', headerName: 'Email', width: 250 },
-    { field: 'role', headerName: 'Role', width: 150 },
-    { field: 'department', headerName: 'Department', width: 150 },
-    { field: 'salary', headerName: 'Salary', width: 120 },
-    { field: 'startDate', headerName: 'Start Date', width: 130 },
-  ];
+const columns: GridColDef[] = [
+  { field: 'id', headerName: 'ID', width: 80 },
+  { field: 'name', headerName: 'Name', width: 200 },
+  { field: 'email', headerName: 'Email', width: 250 },
+  { field: 'role', headerName: 'Role', width: 150 },
+  { field: 'department', headerName: 'Department', width: 150 },
+  { field: 'salary', headerName: 'Salary', width: 120 },
+  { field: 'startDate', headerName: 'Start Date', width: 130 },
+];
 
+const EmployeeDataGrid = () => {
   const dataSource: GridDataSource = useMemo(() => ({
     getRows: async (params: GridGetRowsParams): Promise<GridGetRowsResponse> => {
       const urlParams = new URLSearchParams({
-        page: params.paginationModel?.page?.toString() || '0',
-        pageSize: params.paginationModel?.pageSize?.toString() || '40',
+        paginationModel: JSON.stringify(params.paginationModel),
         sortModel: JSON.stringify(params.sortModel || []),
         filterModel: JSON.stringify(params.filterModel || {}),
       });
@@ -57,10 +56,10 @@ const EmployeeDataGrid = () => {
   return (
     <Box sx={{ height: 600, width: '100%' }}>
       <Typography variant="h4" component="h1" gutterBottom>
-        Employee Management
+        MUI X Data Grid with the Data Source layer
       </Typography>
       <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-        Server-side data with pagination, sorting, and filtering
+        Server-side data with pagination, sorting, and filtering.
       </Typography>
       
       <DataGrid
